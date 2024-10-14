@@ -6,6 +6,8 @@ interface TypewriterProps {
   loop?: boolean;
   delay?: number;
   cursor?: string;
+  pauseFor?: number;
+  deleteSpeed?: any|null;
 }
 
 const TypewriterComponent: React.FC<TypewriterProps> = ({
@@ -13,6 +15,7 @@ const TypewriterComponent: React.FC<TypewriterProps> = ({
   loop = false,
   delay = 130,
   cursor = '|',
+  deleteSpeed = 'natural'
 }) => {
   return (
     <div id='typewriter'>
@@ -23,6 +26,7 @@ const TypewriterComponent: React.FC<TypewriterProps> = ({
           loop: loop,
           delay: delay,
           cursor: cursor,
+          deleteSpeed: deleteSpeed,
         }}
       />
     </div>
