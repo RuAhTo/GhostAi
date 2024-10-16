@@ -21,8 +21,8 @@ mongoose.connect(process.env.MONGODB_URI)
     console.error('MongoDB-anslutning misslyckades:', err);
   });
 
-const authRoutes = require('./routes/auth');
-app.use('/api/auth', authRoutes);
+// const authRoutes = require('./routes/auth');
+// app.use('/api/auth', authRoutes);
 
 const aiRoutes = require('./routes/ai');
 app.use('/api/story', aiRoutes);

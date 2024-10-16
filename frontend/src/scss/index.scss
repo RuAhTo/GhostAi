@@ -74,13 +74,31 @@ main{
     color: black;
 }
 
+// SCSS for fade-in and fade-out
 .fade-in {
-    opacity: 1;
-    transition: opacity 1.5s ease-in;
+    animation: fadeIn 1.0s forwards;
   }
   
   .fade-out {
-    opacity: 0;
-    transition: opacity 2s ease-out;
+    animation: fadeOut 1.0s forwards;
   }
+  
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes fadeOut {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  
   

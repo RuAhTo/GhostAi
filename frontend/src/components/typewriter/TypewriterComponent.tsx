@@ -13,9 +13,9 @@ interface TypewriterProps {
 const TypewriterComponent: React.FC<TypewriterProps> = ({
   strings,
   loop = false,
-  delay = 110,
+  delay = 80,
   cursor = '|',
-  deleteSpeed = 'natural'
+  deleteSpeed = 'natural',
 }) => {
   const textContainerRef = useRef<HTMLDivElement>(null);
 

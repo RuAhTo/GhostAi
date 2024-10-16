@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import Typewriter from 'typewriter-effect';
 import '../SCSS/index.scss';
 import CharacterForm from '../components/game/CharacterForm';
+import { useFadeAnimation } from '../components/animation/FadeAnimation';
 
 interface StoryResponse {
   scenario: string;
-  options: string[];
+  options?: string[]; // Options are optional because there are no options in the ending
 }
 
 const Game: React.FC = () => {
@@ -14,30 +15,16 @@ const Game: React.FC = () => {
   const [characterName, setCharacterName] = useState('');
   const [storyAi, setStoryAi] = useState('');
   const [playerOptions, setPlayerOptions] = useState<string[]>([]);
-  const [isTypewriterFinished, setIsTypewriterFinished] = useState(false);
-  const [fadeClass, setFadeClass] = useState('fade-in');
-  const [optionsVisible, setOptionsVisible] = useState(false);
-  const [isFadingOut, setIsFadingOut] = useState(false);
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCharacterName(event.target.value);
-  };
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    setGameStage(2);
-  };
-
-  const handleStart = () => {
-    setGameStage(1);
-  };
-
+  const [typewriterCompleted, setTypewriterCompleted] = useState(false);
+  const [intensity, setIntensity] = useState(2);
+  const { fadeClass, triggerFade } = useFadeAnimation();
+  
   const fetchStory = async (url: string, body?: any) => {
     try {
       const response = body
         ? await axios.post<StoryResponse>(url, body)
         : await axios.get<StoryResponse>(url);
-      console.log(response.data)
+      console.log(response.data);
       return response.data;
     } catch (error) {
       console.error('Error fetching story:', error);
@@ -45,82 +32,131 @@ const Game: React.FC = () => {
     }
   };
 
-  // Hantera fade-effekter
-  const handleFade = (fadeType: 'fade-in' | 'fade-out', duration = 500) => {
-    setFadeClass(fadeType);
-    return new Promise(resolve => setTimeout(resolve, duration));
+  const advanceGameStage = async (newStage: number, fadeType: string) => {
+    await triggerFade(fadeType);
+    setGameStage(newStage);
+    await triggerFade('fade-in');
   };
 
-  // Starta berättelsen
+  const handleStart = () => advanceGameStage(1, 'fade-out');
+
   const handleStoryStart = async (event: React.FormEvent) => {
     event.preventDefault();
-    setIsFadingOut(true);
-
-    await handleFade('fade-out');
+    setTypewriterCompleted(false); // Reset completion state
+    await triggerFade('fade-out');
     const data = await fetchStory('http://localhost:5000/api/story/start');
+
     if (data) {
       setStoryAi(data.scenario);
-      setPlayerOptions(data.options);
+      setPlayerOptions(data.options || []); // Ensure options are an empty array if not present
       setGameStage(3);
-      setIsTypewriterFinished(false);
-      await handleFade('fade-in');
-      setOptionsVisible(true);
     }
-    setIsFadingOut(false);
+    await triggerFade('fade-in');
   };
 
-  // Spelarens val
   const handlePlayerChoice = async (choice: string) => {
-    const currentStory = storyAi;
-    setOptionsVisible(false);
-    await handleFade('fade-out');
-
+    setTypewriterCompleted(false);
+    await triggerFade('fade-out');
     const data = await fetchStory('http://localhost:5000/api/story/choice', {
-      currentStory,
-      playerOptions: choice,
+      currentStory: storyAi,
+      playerChoice: choice,
+      intensity,
     });
 
     if (data) {
       setStoryAi(data.scenario);
-      setPlayerOptions(data.options);
-      setIsTypewriterFinished(false);
-      await handleFade('fade-in');
-      setOptionsVisible(true);
+      setIntensity((prevIntensity) => Math.min(prevIntensity + 1, 6)); // Cap intensity at 6
+      console.log(intensity)
+      
+      // If intensity reaches 6, it's the final stage
+      if (intensity >= 6) {
+        setPlayerOptions([]); // No more options at the end
+        setGameStage(4); // Move to the ending frame
+      } else {
+        setPlayerOptions(data.options || []);
+      }
     }
+
+    await triggerFade('fade-in');
   };
 
-  const handleTypewriterFinish = () => {
-    setIsTypewriterFinished(true);
-    handleFade('fade-out', 500).then(() => {
-      setOptionsVisible(true);
-      setFadeClass('fade-in');
-    });
-  };
-
-  // Rendera knappar baserat på spelfasen
   const renderButtons = () => {
     switch (gameStage) {
       case 0:
-        return <button className="main-btn" onClick={handleStart}>Börja</button>;
+        return <button className={`main-btn ${fadeClass}`} onClick={handleStart}>Börja</button>;
       case 1:
         return (
           <CharacterForm 
             characterName={characterName} 
-            handleChange={handleChange} 
-            handleSubmit={handleSubmit} 
+            handleChange={(e) => setCharacterName(e.target.value)} 
+            handleSubmit={() => advanceGameStage(2, 'fade-out')} 
           />
         );
       case 2:
         return <button className={`main-btn ${fadeClass}`} onClick={handleStoryStart}>Ny berättelse</button>;
       case 3:
-        return optionsVisible && (
-          <div className={`options-container ${fadeClass}`}>
-            {playerOptions.map((option, index) => (
-              <button key={index} className="main-btn" onClick={() => handlePlayerChoice(option)}>
-                {option}
-              </button>
-            ))}
+        return (
+          typewriterCompleted && ( // Only render buttons after typewriter is done
+            <div className={`options-container ${fadeClass}`}>
+              {playerOptions.map((option, index) => (
+                <button key={index} className="main-btn" onClick={() => handlePlayerChoice(option)}>
+                  {option}
+                </button>
+              ))}
+            </div>
+          )
+        );
+      case 4: // Ending frame
+        return (
+          <div className={`ending-frame ${fadeClass}`}>
+            <h2>Spelet är över!</h2>
+            <p>{storyAi}</p>
+            <button className="main-btn" onClick={() => window.location.reload()}>Spela igen</button>
           </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const renderTypewriter = () => {
+    const options = { autoStart: true };
+
+    switch (gameStage) {
+      case 0:
+        return (
+          <Typewriter
+            options={{ ...options, strings: ['Välkommen till GhostAi.', 'Klicka för att börja.'], loop: true }}
+          />
+        );
+      case 1:
+        return <Typewriter options={{ ...options, strings: 'Ange din karaktärs namn.' }} />;
+      case 2:
+        return <Typewriter options={{ ...options, strings: `Välkommen ${characterName}, låt oss börja...` }} />;
+      case 3:
+        return (
+          <Typewriter
+            key={storyAi}
+            options={options}
+            onInit={(typewriter) => {
+              typewriter
+                .typeString(storyAi)
+                .callFunction(() => setTypewriterCompleted(true)) // Set completed when finished
+                .start();
+            }}
+          />
+        );
+      case 4:
+        return (
+          <Typewriter
+            key={storyAi}
+            options={options}
+            onInit={(typewriter) => {
+              typewriter
+                .typeString(storyAi)
+                .start();
+            }}
+          />
         );
       default:
         return null;
@@ -130,57 +166,15 @@ const Game: React.FC = () => {
   return (
     <main>
       <div className="game-container">
-        <div className={`story-container ${isFadingOut ? 'fade-out' : 'fade-in'}`}>
-          {gameStage === 0 && (
-            <Typewriter
-              options={{
-                autoStart: true,
-                strings: ['Välkommen till GhostAi.', 'Klicka för att börja.'],
-                loop: true,
-              }}
-            />
-          )}
-  
-          {gameStage === 1 && (
-            <Typewriter
-              options={{
-                autoStart: true,
-                strings: 'Ange din karaktärs namn.',
-              }}
-            />
-          )}
-  
-          {gameStage === 2 && (
-            <Typewriter
-              options={{
-                autoStart: true,
-                strings: `Välkommen ${characterName}, låt oss börja...`,
-              }}
-            />
-          )}
-  
-            {gameStage === 3 && (
-            <Typewriter
-                key={storyAi} // This forces the Typewriter to re-render when storyAi changes
-                options={{
-                autoStart: true,
-                }}
-                onInit={(typewriter) => {
-                typewriter
-                    .typeString(storyAi)
-                    .callFunction(() => handleTypewriterFinish())
-                    .start();
-                }}
-            />
-            )}
+        <div className={`story-container ${fadeClass}`}>
+          {renderTypewriter()}
         </div>
-  
-        <div className='button-container'>
+        <div className="button-container">
           {renderButtons()}
         </div>
       </div>
     </main>
-  );  
+  );
 };
 
 export default Game;
