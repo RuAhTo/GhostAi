@@ -37,6 +37,7 @@ const Game: React.FC = () => {
       const response = body
         ? await axios.post<StoryResponse>(url, body)
         : await axios.get<StoryResponse>(url);
+      console.log(response.data)
       return response.data;
     } catch (error) {
       console.error('Error fetching story:', error);
@@ -158,19 +159,20 @@ const Game: React.FC = () => {
             />
           )}
   
-          {gameStage === 3 && (
+            {gameStage === 3 && (
             <Typewriter
-              options={{
+                key={storyAi} // This forces the Typewriter to re-render when storyAi changes
+                options={{
                 autoStart: true,
-              }}
-              onInit={(typewriter) => {
+                }}
+                onInit={(typewriter) => {
                 typewriter
-                  .typeString(storyAi)
-                  .callFunction(() => handleTypewriterFinish())
-                  .start();
-              }}
+                    .typeString(storyAi)
+                    .callFunction(() => handleTypewriterFinish())
+                    .start();
+                }}
             />
-          )}
+            )}
         </div>
   
         <div className='button-container'>
