@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Typewriter from 'typewriter-effect';
 
 interface TypewriterProps {
@@ -7,21 +7,43 @@ interface TypewriterProps {
   delay?: number;
   cursor?: string;
   pauseFor?: number;
-  deleteSpeed?: any|null;
+  deleteSpeed?: any | null;
 }
 
 const TypewriterComponent: React.FC<TypewriterProps> = ({
   strings,
   loop = false,
-  delay = 130,
+  delay = 110,
   cursor = '|',
   deleteSpeed = 'natural'
 }) => {
+  const textContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    if (textContainerRef.current) {
+      textContainerRef.current.scrollTop = textContainerRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  });
+
   return (
-    <div id='typewriter'>
+    <div
+      ref={textContainerRef}
+      id="typewriter"
+    >
       <Typewriter
+        onInit={(typewriter) => {
+          typewriter
+            .typeString(strings.join(' '))
+            .callFunction(() => {
+              scrollToBottom();
+            })
+            .start();
+        }}
         options={{
-          strings: strings,
           autoStart: true,
           loop: loop,
           delay: delay,
