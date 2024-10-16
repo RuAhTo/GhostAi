@@ -18,13 +18,16 @@ För att köra projektet behöver du:
 
    ```bash
    npm install
+   ```
 
  ## **Konfiguration av miljövariabler:**
 
 I backend-mappen behöver du skapa en `.env`-fil som innehåller följande variabler:
 
+```plaintext
 OPENAI_API_KEY=din-openai-api-nyckel
 MONGODB_URI=din-mongodb-anslutningssträng
+```
 
 ## **Starta applikationen:**
 
