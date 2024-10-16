@@ -7,7 +7,7 @@ import { useFadeAnimation } from '../components/animation/FadeAnimation';
 
 interface StoryResponse {
   scenario: string;
-  options?: string[]; // Options are optional because there are no options in the ending
+  options?: string[];
 }
 
 const Game: React.FC = () => {
@@ -16,7 +16,7 @@ const Game: React.FC = () => {
   const [storyAi, setStoryAi] = useState('');
   const [playerOptions, setPlayerOptions] = useState<string[]>([]);
   const [typewriterCompleted, setTypewriterCompleted] = useState(false);
-  const [intensity, setIntensity] = useState(2);
+  const [intensity, setIntensity] = useState(6);
   const { fadeClass, triggerFade } = useFadeAnimation();
   
   const fetchStory = async (url: string, body?: any) => {
@@ -106,13 +106,13 @@ const Game: React.FC = () => {
             </div>
           )
         );
-      case 4: // Ending frame
+        case 4: // Ending frame
         return (
-          <div className={`ending-frame ${fadeClass}`}>
-            <h2>Spelet är över!</h2>
-            <p>{storyAi}</p>
-            <button className="main-btn" onClick={() => window.location.reload()}>Spela igen</button>
-          </div>
+          typewriterCompleted && (
+            <div className={`ending-frame ${fadeClass}`}>
+              <button className="main-btn" onClick={() => window.location.reload()}>Spela igen</button>
+            </div>
+          )
         );
       default:
         return null;
@@ -121,7 +121,7 @@ const Game: React.FC = () => {
 
   const renderTypewriter = () => {
     const options = { autoStart: true };
-
+  
     switch (gameStage) {
       case 0:
         return (
@@ -148,20 +148,24 @@ const Game: React.FC = () => {
         );
       case 4:
         return (
-          <Typewriter
-            key={storyAi}
-            options={options}
-            onInit={(typewriter) => {
-              typewriter
-                .typeString(storyAi)
-                .start();
-            }}
-          />
+          <div className={`ending-frame ${fadeClass}`}>
+            <Typewriter
+              key={storyAi}
+              options={options}
+              onInit={(typewriter) => {
+                typewriter
+                  .typeString(storyAi)
+                  .callFunction(() => setTypewriterCompleted(true))
+                  .start();
+              }}
+            />
+          </div>
         );
       default:
         return null;
     }
   };
+  
 
   return (
     <main>

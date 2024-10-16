@@ -10,6 +10,7 @@ body {
     color: white;   
     width: auto;
     height: 100vh;
+    overflow: hidden;
 }
 
 main{
@@ -20,24 +21,26 @@ main{
     flex-direction: column;
 }
 
-.game-container::before {
+main::before {
     content:'';
     width:100%;
     height:100%;    
     position:absolute;
     left:0;
     top:0;
-    background:linear-gradient(0deg, transparent 600px, rgb(0, 0, 0));
+    background:linear-gradient(0deg, transparent 500px, rgb(0, 0, 0) 900px);
     pointer-events: none;
+    z-index: 100;
   }
+
 .game-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 80vh;
+    height: 100vh;
     width: calc(100% - 1rem);
-    gap: 2rem;
+    gap: 1rem;
   }
   
   .story-container {
@@ -45,7 +48,7 @@ main{
     justify-content: center;
     align-items: center;
     width: 60%;
-    height: auto;
+    height: 100%;
     overflow-y: auto;
     padding: 1rem;
   }
@@ -57,6 +60,7 @@ main{
     width: 60%;
     flex-direction: column;
     padding: 1rem;
+    height: 14rem;
 }
 
 .main-btn{

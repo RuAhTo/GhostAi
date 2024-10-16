@@ -12,11 +12,7 @@ const CharacterForm: React.FC<CharacterFormProps> = ({ characterName, handleChan
   
     const handleFormSubmit = async (event: React.FormEvent) => {
       event.preventDefault();
-      
-      // Start fade-out animation and wait for it to complete
       await triggerFade('fade-out'); 
-  
-      // Now handle form submission
       handleSubmit(event); 
     };
   
