@@ -19,7 +19,7 @@ För att köra projektet behöver du:
    ```bash
    npm install
 
-   ## **Konfiguration av miljövariabler:**
+ ## **Konfiguration av miljövariabler:**
 
 I backend-mappen behöver du skapa en `.env`-fil som innehåller följande variabler:
 
