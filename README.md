@@ -1,6 +1,6 @@
 # **Skräckspel med OpenAI - Dokumentation**
 
-Detta är ett interaktivt textbaserat skräckspel där spelaren gör val baserade på scenarier som genereras av OpenAI:s GPT-3.5. Spelaren tas igenom en serie händelser i en skrämmande miljö, och varje val påverkar hur berättelsen utvecklas.
+Detta är ett interaktivt textbaserat skräckspel där spelaren gör val baserade på scenarier som genereras av OpenAI:s GPT-3.5. Spelaren tas igenom en serie händelser i en skrämmande miljö, och varje val påverkar hur berättelsen utvecklas. Målgruppen är nästan vem som helst som är intresserad av skräck och rollspel eller bara nyfiken, däremot kan det nog anses olämpligt för barn. 
 
 ## **Krav och Förberedelser**
 För att köra projektet behöver du:
@@ -64,3 +64,8 @@ När spelet är slut kan du välja att spela om genom att klicka på "Spela igen
 - **Backend:** Node.js + Express som hanterar API-förfrågningar och kommunikation med OpenAI och MongoDB.
 - **Databas:** MongoDB används för att lagra spelets data.
 - **OpenAI:** GPT-3.5 används för att generera skräckscenarier och valmöjligheter.
+
+### **Etisk & säker anvädning**
+Det finns en hel del diskussioner kring om OpenAI och andra AI-modeller använder etiskt korrekt träningsdata. En stor fråga handlar om upphovsrätt – många verk som AI tränats på, som böcker och artiklar, har använts utan tillstånd från upphovsmännen. Är det rättvist att kreatörernas arbete används på det sättet? Eller är det en del av den tekniska utvecklingen?
+
+Eftersom spelet kan innehålla skrämmande eller olämpligt innehåll för barn, kan det vara bra att ha en rekommenderad åldersgräns eller varna för känsliga spelare.
